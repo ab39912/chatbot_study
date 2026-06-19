@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import json
 import base64
+import random
 
 st.set_page_config(
     page_title="Discourse Assessment Protocol",
@@ -17,18 +18,37 @@ try:
 except Exception:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
 
+# ── Section II task list ─────────────────────────────────────────────────────
+SECTION2_TASKS = [
+    "II-A1 — Cookie Theft",
+    "II-A2 — Broken Window",
+    "II-B1 — Cat Rescue",
+    "II-B2 — Refused Umbrella",
+]
+
+# Shuffle once per session; stable across reruns, fresh per participant
+if "task_order" not in st.session_state:
+    order = SECTION2_TASKS.copy()
+    random.shuffle(order)
+    st.session_state.task_order = order
+
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("Protocol Navigator")
+
+    rcol, bcol = st.columns([5, 1])
+    with rcol:
+        st.caption("Section II order is randomized per session.")
+    with bcol:
+        if st.button("🔀", help="Re-randomize for a new participant"):
+            order = SECTION2_TASKS.copy()
+            random.shuffle(order)
+            st.session_state.task_order = order
+            st.rerun()
+
     task = st.radio(
         "Select task",
-        [
-            "I — First Encounter",
-            "II-A1 — Cookie Theft",
-            "II-A2 — Broken Window",
-            "II-B1 — Cat Rescue",
-            "II-B2 — Refused Umbrella",
-        ],
+        ["I — First Encounter"] + st.session_state.task_order,
     )
 
     st.divider()
