@@ -187,6 +187,7 @@ button:hover{background:#e0f2fe;}
 @keyframes wv{0%,100%{height:4px;}50%{height:24px;}}
 .spin{display:none;width:20px;height:20px;border:2px solid #e2e8f0;border-top-color:#0ea5e9;border-radius:50%;animation:rot .7s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 .status-p{width:100%;text-align:center;font-size:12px;color:#94a3b8;min-height:15px;margin-bottom:6px;}
 .irow{min-height:26px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
 .ipill{display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:50px;padding:3px 11px;font-size:11px;color:#64748b;font-style:italic;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -196,20 +197,13 @@ button:hover{background:#e0f2fe;}
 </head>
 <body>
 <div id="app">
-  <div id="s-intro" class="screen on">
-    <div class="intro-logo"><i class="ti ti-microphone"></i></div>
-    <h1>First Encounter</h1>
-    <span class="badge">Section I</span>
-    <p class="sub">Voice-only conversation. No typing required.<br>The AI partner has no prepared questions.</p>
-    <div class="info-box">
-      <div class="lbl">Protocol Notes</div>
-      <p>This is not an interview. Allow the participant to initiate topics and lead the conversation. Duration: approximately 5 minutes.</p>
-    </div>
-    <button onclick="startSession()"><i class="ti ti-player-play"></i>&nbsp;Begin Session</button>
+  <div id="s-intro" class="screen on" style="justify-content:center;min-height:260px;gap:16px;padding-top:48px;">
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin:0;">Section I — First Encounter</p>
+    <button style="font-size:15px;padding:13px 52px;" onclick="startSession()"><i class="ti ti-player-play"></i>&nbsp; Start Session</button>
     <p class="err" id="err"></p>
   </div>
   <div id="s-sess" class="screen">
-    <div class="sess-hd"><span class="sess-lbl">First Encounter</span><span class="timer" id="timer">0:00</span></div>
+    <div class="sess-hd"><span class="sess-lbl">First Encounter</span><div style="display:flex;align-items:center;gap:10px;"><span id="rec-ind" style="display:none;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#dc2626;"><span style="width:8px;height:8px;border-radius:50%;background:#dc2626;animation:blink 1.5s ease-in-out infinite;display:inline-block;"></span>REC</span><span class="timer" id="timer">0:00</span></div></div>
     <div class="grid">
       <div class="panel" id="panel-ai"><div class="p-ico"><i class="ti ti-robot"></i></div><div class="p-name">AI Partner</div><div class="p-st" id="ai-st">Initializing</div></div>
       <div class="ctr"><div class="wave" id="wave"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div><div class="spin" id="spin"></div></div>
@@ -222,8 +216,17 @@ button:hover{background:#e0f2fe;}
   <div id="s-end" class="screen">
     <div class="end-logo"><i class="ti ti-check"></i></div>
     <h1>Session Complete</h1>
-    <p class="sub" style="margin-top:5px;">Section I ended.<br>Navigate to the next task in the sidebar.</p>
-    <div style="margin-top:18px;"><button onclick="resetSession()"><i class="ti ti-refresh"></i>&nbsp;New Session</button></div>
+    <p class="sub" style="margin-top:5px;">Download your files before starting a new session.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0 2px;">
+      <button onclick="downloadTranscript()" style="background:#f0f9ff;color:#0369a1;border-color:rgba(14,165,233,.4);">
+        <i class="ti ti-file-text"></i>&nbsp; Transcript (.txt)
+      </button>
+      <button id="btn-audio" onclick="downloadAudio()" disabled style="background:#fffbeb;color:#b45309;border-color:rgba(245,158,11,.4);">
+        <i class="ti ti-microphone"></i>&nbsp; Recording (.webm)
+      </button>
+    </div>
+    <p id="rec-note" style="font-size:11px;color:#94a3b8;margin-bottom:14px;min-height:16px;text-align:center;"></p>
+    <button onclick="resetSession()"><i class="ti ti-refresh"></i>&nbsp; New Session</button>
   </div>
 </div>
 <script>
@@ -233,6 +236,7 @@ const MAX_S=300,SIL_MS=2500,LONG_S=11000;
 const OPENING="Hello. I don't think we've met before. So maybe we can start by getting to know each other a little. This isn't an interview, so I don't have a list of questions prepared. We can just chat casually and get to know each other.";
 const SYS="You are participating in the First Encounter section of a clinical discourse assessment. Engage in natural casual conversation as if meeting this person for the first time.\\n\\nRULES:\\n- NOT an interview: no prepared question list\\n- Let the participant lead; follow their topics\\n- VERY SHORT responses: 1-2 sentences max\\n- Be warm, genuine, natural\\n- Never ask more than one question at a time\\n- Respond only with spoken words\\n- Do not reference the assessment";
 let phase='idle',hist=[],recog=null,recogOn=false,tid=null,secs=0,silT=null,longT=null,curTx='',voices=[],bugT=null;
+let txLog=[],sessStart=null,mediaRec=null,recChunks=[],recStream=null;
 const $=id=>document.getElementById(id);
 function qShow(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
 function setPanel(who,active){const el=$(who==='ai'?'panel-ai':'panel-pa');el.className='panel'+(active?' '+(who==='ai'?'ai-on':'pa-on'):'');const st=$(who==='ai'?'ai-st':'pa-st');if(who==='ai')st.textContent=active?'Speaking\u2026':(phase==='processing'?'Thinking\u2026':'Listening');else st.textContent=active?'Speaking\u2026':'Your turn';}
@@ -247,10 +251,16 @@ function initSTT(){const SR=window.SpeechRecognition||window.webkitSpeechRecogni
 function safeStart(){if(recogOn)return;try{recog.start();}catch(_){}}
 function stopSTT(){clearTimeout(silT);clearTimeout(longT);try{recog.stop();}catch(_){}recogOn=false;setInterim('');}
 function listenForParticipant(){curTx='';setInterim('');phase='listening';setPanel('pa',false);setWave(null);setStatus("Participant's turn\u2026");longT=setTimeout(()=>{if(phase==='listening')setStatus('Take your time\u2026');},LONG_S);safeStart();}
-async function processTurn(text){if(phase==='ended')return;phase='processing';setPanel('ai',false);setPanel('pa',false);setWave('proc');setStatus('Processing\u2026');$('ai-st').textContent='Thinking\u2026';hist.push({role:'user',content:text});try{const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:180,system:SYS,messages:hist})});const data=await res.json();if(data?.content?.[0]?.text){const reply=data.content[0].text.trim();hist.push({role:'assistant',content:reply});speak(reply,()=>{if(phase!=='ended')listenForParticipant();});}else{if(phase!=='ended')listenForParticipant();}}catch(err){setStatus('Connection issue \u2014 resuming\u2026');setTimeout(()=>{if(phase!=='ended')listenForParticipant();},2000);}}
-function startSession(){if(!initSTT()){const el=$('err');el.textContent='Speech recognition not supported. Use Chrome or Edge.';el.style.display='block';return;}$('panel-ai').className='panel';$('panel-pa').className='panel';$('ai-st').textContent='Initializing';$('pa-st').textContent='Waiting';setWave(null);setStatus('Preparing session\u2026');setInterim('');hist=[{role:'assistant',content:OPENING}];qShow('s-sess');startTimer();speak(OPENING,()=>{if(phase!=='ended')listenForParticipant();});}
-function endSession(){phase='ended';stopSTT();clearInterval(tid);clearInterval(bugT);window.speechSynthesis.cancel();qShow('s-end');}
-function resetSession(){phase='idle';hist=[];secs=0;curTx='';$('timer').textContent='0:00';$('timer').className='timer';qShow('s-intro');}
+async function processTurn(text){if(phase==='ended')return;phase='processing';setPanel('ai',false);setPanel('pa',false);setWave('proc');setStatus('Processing\u2026');$('ai-st').textContent='Thinking\u2026';logTx('Participant',text);hist.push({role:'user',content:text});try{const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:180,system:SYS,messages:hist})});const data=await res.json();if(data?.content?.[0]?.text){const reply=data.content[0].text.trim();hist.push({role:'assistant',content:reply});logTx('AI',reply);speak(reply,()=>{if(phase!=='ended')listenForParticipant();});}else{if(phase!=='ended')listenForParticipant();}}catch(err){setStatus('Connection issue \u2014 resuming\u2026');setTimeout(()=>{if(phase!=='ended')listenForParticipant();},2000);}}
+function logTx(who,text){if(!sessStart)return;const e=Math.floor((Date.now()-sessStart)/1000);txLog.push({t:Math.floor(e/60)+':'+String(e%60).padStart(2,'0'),who,text});}
+function dlTranscript(){if(!txLog.length)return;const d=new Date();let o='DISCOURSE ASSESSMENT — SECTION I: FIRST ENCOUNTER\n';o+='Date: '+d.toLocaleDateString()+'   Time: '+d.toLocaleTimeString()+'\n';o+='─'.repeat(52)+'\n\n';for(const e of txLog)o+='['+e.t+']  '+e.who+':\n'+e.text+'\n\n';const b=new Blob([o],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='transcript_'+d.toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
+function downloadTranscript(){dlTranscript();}
+async function startRec(){try{recStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});const mt=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';mediaRec=new MediaRecorder(recStream,{mimeType:mt});recChunks=[];mediaRec.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};mediaRec.onstop=()=>{const b=$('btn-audio');if(b)b.disabled=false;};mediaRec.start(1000);const ri=$('rec-ind');if(ri)ri.style.display='flex';}catch(err){const n=$('rec-note');if(n)n.textContent='Audio recording was unavailable in this session.';}}
+function stopRec(){if(mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();if(recStream)recStream.getTracks().forEach(t=>t.stop());}
+function downloadAudio(){if(!recChunks.length)return;const b=new Blob(recChunks,{type:'audio/webm'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='recording_'+new Date().toISOString().slice(0,10)+'.webm';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
+function startSession(){if(!initSTT()){const el=$('err');el.textContent='Speech recognition not supported. Use Chrome or Edge.';el.style.display='block';return;}$('panel-ai').className='panel';$('panel-pa').className='panel';$('ai-st').textContent='Initializing';$('pa-st').textContent='Waiting';setWave(null);setStatus('Preparing session\u2026');setInterim('');txLog=[];recChunks=[];sessStart=Date.now();startRec();logTx('AI',OPENING);hist=[{role:'assistant',content:OPENING}];qShow('s-sess');startTimer();speak(OPENING,()=>{if(phase!=='ended')listenForParticipant();});}
+function endSession(){phase='ended';stopSTT();stopRec();clearInterval(tid);clearInterval(bugT);window.speechSynthesis.cancel();qShow('s-end');}
+function resetSession(){phase='idle';hist=[];txLog=[];secs=0;curTx='';$('timer').textContent='0:00';$('timer').className='timer';qShow('s-intro');}
 if(typeof speechSynthesis!=='undefined'){speechSynthesis.addEventListener('voiceschanged',loadVoices);loadVoices();}
 </script>
 </body>
