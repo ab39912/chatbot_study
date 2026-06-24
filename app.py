@@ -5,7 +5,7 @@ import base64
 import random
 
 st.set_page_config(
-    page_title="Discourse Assessment Protocol",
+    page_title="Chatbot Study",
     page_icon="🎙️",
     layout="centered",
     initial_sidebar_state="expanded",
@@ -143,7 +143,8 @@ def multi_img_html(paths_labels):
 
 
 # ── Section I HTML ────────────────────────────────────────────────────────────
-SECTION1_HTML = """<!DOCTYPE html>
+SECTION1_HTML = """\
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -151,18 +152,14 @@ SECTION1_HTML = """<!DOCTYPE html>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:transparent;color:#1e293b;font-size:14px;}
-.screen{display:none;} .screen.on{display:flex;flex-direction:column;align-items:center;padding:16px 16px 12px;animation:up .2s ease;}
+.screen{display:none;}
+.screen.on{display:flex;flex-direction:column;align-items:center;padding:16px 16px 12px;animation:up .2s ease;}
 @keyframes up{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.intro-logo{width:58px;height:58px;border-radius:50%;background:#f0f9ff;border:1px solid rgba(14,165,233,.25);display:flex;align-items:center;justify-content:center;font-size:24px;color:#0ea5e9;margin-bottom:12px;}
 h1{font-size:20px;font-weight:600;color:#1e293b;margin-bottom:5px;text-align:center;}
-.badge{display:inline-block;background:#f0f9ff;color:#0369a1;border:1px solid rgba(14,165,233,.3);padding:3px 12px;border-radius:50px;font-size:12px;font-weight:600;margin-bottom:12px;}
-.sub{font-size:13px;color:#64748b;text-align:center;line-height:1.6;margin-bottom:14px;}
-.info-box{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:20px;}
-.info-box .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:5px;}
-.info-box p{font-size:12px;color:#64748b;line-height:1.6;}
 button{background:#f0f9ff;color:#0369a1;border:1px solid rgba(14,165,233,.4);padding:9px 28px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
-button:hover{background:#e0f2fe;}
-.err{display:none;color:#dc2626;font-size:12px;margin-top:10px;text-align:center;}
+button:hover:not(:disabled){background:#e0f2fe;}
+button:disabled{opacity:.5;cursor:not-allowed;}
+.errbx{display:none;background:#fef2f2;border:1px solid rgba(220,38,38,.35);border-radius:10px;padding:12px 18px;font-size:13px;color:#b91c1c;text-align:center;line-height:1.55;max-width:380px;}
 .sess-hd{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .sess-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;}
 .timer{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;color:#1e293b;font-family:'SF Mono',Menlo,monospace;}
@@ -176,12 +173,12 @@ button:hover{background:#e0f2fe;}
 .panel.pa-on .p-ico{background:#fff;color:#d97706;}
 .p-name{font-size:12px;font-weight:600;color:#1e293b;}
 .p-st{font-size:11px;color:#94a3b8;text-align:center;min-height:14px;transition:color .2s;}
-.panel.ai-on .p-st{color:#0284c7;} .panel.pa-on .p-st{color:#b45309;}
+.panel.ai-on .p-st{color:#0284c7;}.panel.pa-on .p-st{color:#b45309;}
 .ctr{display:flex;flex-direction:column;align-items:center;justify-content:center;height:162px;gap:8px;}
 .wave{display:flex;align-items:center;gap:3px;height:28px;}
 .wbar{width:3px;border-radius:2px;background:#e2e8f0;height:4px;}
-.wbar:nth-child(1){animation-delay:.00s;} .wbar:nth-child(2){animation-delay:.12s;}
-.wbar:nth-child(3){animation-delay:.24s;} .wbar:nth-child(4){animation-delay:.12s;} .wbar:nth-child(5){animation-delay:.00s;}
+.wbar:nth-child(1){animation-delay:.00s;}.wbar:nth-child(2){animation-delay:.12s;}
+.wbar:nth-child(3){animation-delay:.24s;}.wbar:nth-child(4){animation-delay:.12s;}.wbar:nth-child(5){animation-delay:.00s;}
 .wave.ai-wave .wbar{background:#0ea5e9;animation:wv .85s ease-in-out infinite;}
 .wave.pa-wave .wbar{background:#f59e0b;animation:wv .60s ease-in-out infinite;}
 @keyframes wv{0%,100%{height:4px;}50%{height:24px;}}
@@ -191,33 +188,60 @@ button:hover{background:#e0f2fe;}
 .status-p{width:100%;text-align:center;font-size:12px;color:#94a3b8;min-height:15px;margin-bottom:6px;}
 .irow{min-height:26px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
 .ipill{display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:50px;padding:3px 11px;font-size:11px;color:#64748b;font-style:italic;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.btn-end{color:#64748b;border-color:#e2e8f0;} .btn-end:hover{background:#f1f5f9;}
+.btn-end{color:#64748b;border-color:#e2e8f0;}.btn-end:hover{background:#f1f5f9;}
 .end-logo{width:58px;height:58px;border-radius:50%;background:#f0fdf4;border:1px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;font-size:24px;color:#16a34a;margin-bottom:12px;}
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0 4px;}
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="s-intro" class="screen on" style="justify-content:center;min-height:260px;gap:16px;padding-top:48px;">
-    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin:0;">Section I — First Encounter</p>
-    <button style="font-size:15px;padding:13px 52px;" onclick="startSession()"><i class="ti ti-player-play"></i>&nbsp; Start Session</button>
-    <p class="err" id="err"></p>
+
+  <div id="s-intro" class="screen on" style="justify-content:center;min-height:260px;gap:16px;padding-top:44px;">
+    <div id="errbx" class="errbx"></div>
+    <button id="btn-start" style="font-size:15px;padding:13px 52px;" onclick="startSession()">
+      <i class="ti ti-player-play"></i>&nbsp; Start Session
+    </button>
   </div>
+
   <div id="s-sess" class="screen">
-    <div class="sess-hd"><span class="sess-lbl">First Encounter</span><div style="display:flex;align-items:center;gap:10px;"><span id="rec-ind" style="display:none;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#dc2626;"><span style="width:8px;height:8px;border-radius:50%;background:#dc2626;animation:blink 1.5s ease-in-out infinite;display:inline-block;"></span>REC</span><span class="timer" id="timer">0:00</span></div></div>
+    <div class="sess-hd">
+      <span class="sess-lbl">First Encounter</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="rec-ind" style="display:none;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#dc2626;">
+          <span style="width:8px;height:8px;border-radius:50%;background:#dc2626;animation:blink 1.5s ease-in-out infinite;display:inline-block;"></span>REC
+        </span>
+        <span class="timer" id="timer">0:00</span>
+      </div>
+    </div>
     <div class="grid">
-      <div class="panel" id="panel-ai"><div class="p-ico"><i class="ti ti-robot"></i></div><div class="p-name">AI Partner</div><div class="p-st" id="ai-st">Initializing</div></div>
-      <div class="ctr"><div class="wave" id="wave"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div><div class="spin" id="spin"></div></div>
-      <div class="panel" id="panel-pa"><div class="p-ico"><i class="ti ti-microphone"></i></div><div class="p-name">Participant</div><div class="p-st" id="pa-st">Waiting</div></div>
+      <div class="panel" id="panel-ai">
+        <div class="p-ico"><i class="ti ti-robot"></i></div>
+        <div class="p-name">AI Partner</div>
+        <div class="p-st" id="ai-st">Initializing</div>
+      </div>
+      <div class="ctr">
+        <div class="wave" id="wave">
+          <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+          <div class="wbar"></div><div class="wbar"></div>
+        </div>
+        <div class="spin" id="spin"></div>
+      </div>
+      <div class="panel" id="panel-pa">
+        <div class="p-ico"><i class="ti ti-microphone"></i></div>
+        <div class="p-name">Participant</div>
+        <div class="p-st" id="pa-st">Waiting</div>
+      </div>
     </div>
     <p class="status-p" id="status"></p>
     <div class="irow"><div class="ipill" id="ipill"></div></div>
     <button class="btn-end" onclick="endSession()">End Session</button>
   </div>
+
   <div id="s-end" class="screen">
     <div class="end-logo"><i class="ti ti-check"></i></div>
     <h1>Session Complete</h1>
-    <p class="sub" style="margin-top:5px;">Download your files before starting a new session.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0 2px;">
+    <p style="font-size:13px;color:#64748b;margin-top:5px;text-align:center;">Download files before starting a new session.</p>
+    <div class="dl-row">
       <button onclick="downloadTranscript()" style="background:#f0f9ff;color:#0369a1;border-color:rgba(14,165,233,.4);">
         <i class="ti ti-file-text"></i>&nbsp; Transcript (.txt)
       </button>
@@ -228,40 +252,292 @@ button:hover{background:#e0f2fe;}
     <p id="rec-note" style="font-size:11px;color:#94a3b8;margin-bottom:14px;min-height:16px;text-align:center;"></p>
     <button onclick="resetSession()"><i class="ti ti-refresh"></i>&nbsp; New Session</button>
   </div>
+
 </div>
 <script>
-const API_KEY=APIKEY_PLACEHOLDER;
-const API_URL="https://api.anthropic.com/v1/messages";
-const MAX_S=300,SIL_MS=2500,LONG_S=11000;
-const OPENING="Hello. I don't think we've met before. So maybe we can start by getting to know each other a little. This isn't an interview, so I don't have a list of questions prepared. We can just chat casually and get to know each other.";
-const SYS="You are participating in the First Encounter section of a clinical discourse assessment. Engage in natural casual conversation as if meeting this person for the first time.\\n\\nRULES:\\n- NOT an interview: no prepared question list\\n- Let the participant lead; follow their topics\\n- VERY SHORT responses: 1-2 sentences max\\n- Be warm, genuine, natural\\n- Never ask more than one question at a time\\n- Respond only with spoken words\\n- Do not reference the assessment";
-let phase='idle',hist=[],recog=null,recogOn=false,tid=null,secs=0,silT=null,longT=null,curTx='',voices=[],bugT=null;
-let txLog=[],sessStart=null,mediaRec=null,recChunks=[],recStream=null;
-const $=id=>document.getElementById(id);
-function qShow(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
-function setPanel(who,active){const el=$(who==='ai'?'panel-ai':'panel-pa');el.className='panel'+(active?' '+(who==='ai'?'ai-on':'pa-on'):'');const st=$(who==='ai'?'ai-st':'pa-st');if(who==='ai')st.textContent=active?'Speaking\u2026':(phase==='processing'?'Thinking\u2026':'Listening');else st.textContent=active?'Speaking\u2026':'Your turn';}
-function setWave(m){const w=$('wave'),sp=$('spin');w.style.display='flex';sp.style.display='none';w.className='wave'+(m==='ai'?' ai-wave':m==='pa'?' pa-wave':'');if(m==='proc'){w.style.display='none';sp.style.display='block';}}
-function setStatus(t){$('status').textContent=t;}
-function setInterim(t){const el=$('ipill');if(t){el.textContent=t;el.style.display='block';}else{el.style.display='none';el.textContent='';}}
-function startTimer(){secs=0;tid=setInterval(()=>{secs++;const el=$('timer');el.textContent=Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');el.className='timer'+(secs>=MAX_S-30?' warn':'');if(secs>=MAX_S)endSession();},1000);}
-function loadVoices(){voices=window.speechSynthesis.getVoices();}
-function pickVoice(){const p=['Samantha','Karen','Moira','Google US English Female','Microsoft Aria','Aria','Zira'];for(const n of p){const v=voices.find(v=>v.name.includes(n));if(v)return v;}return voices.find(v=>v.lang&&v.lang.startsWith('en'))||null;}
-function speak(text,done){clearInterval(bugT);window.speechSynthesis.cancel();phase='speaking';setPanel('ai',true);setPanel('pa',false);setWave('ai');setStatus('AI partner is speaking\u2026');const utt=new SpeechSynthesisUtterance(text);utt.rate=0.92;utt.pitch=1.0;utt.volume=1.0;const v=pickVoice();if(v)utt.voice=v;utt.onstart=()=>{bugT=setInterval(()=>{window.speechSynthesis.pause();window.speechSynthesis.resume();},9000);};utt.onend=()=>{clearInterval(bugT);setPanel('ai',false);setWave(null);if(done)done();};utt.onerror=()=>{clearInterval(bugT);setPanel('ai',false);setWave(null);if(done)done();};window.speechSynthesis.speak(utt);}
-function initSTT(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return false;recog=new SR();recog.continuous=true;recog.interimResults=true;recog.lang='en-US';recog.onstart=()=>{recogOn=true;phase='listening';setPanel('pa',false);setWave('pa');setStatus('Listening for participant\u2026');$('pa-st').textContent='Listening\u2026';};recog.onresult=evt=>{let interim='';for(let i=evt.resultIndex;i<evt.results.length;i++){const t=evt.results[i][0].transcript;if(evt.results[i].isFinal){curTx+=t+' ';clearTimeout(silT);clearTimeout(longT);setPanel('pa',true);silT=setTimeout(()=>{if(curTx.trim()&&phase==='listening'){stopSTT();processTurn(curTx.trim());}},SIL_MS);longT=setTimeout(()=>{if(phase==='listening')setStatus('Take your time\u2026');},LONG_S);}else{interim=t;}}setInterim(interim||'');if(interim)setPanel('pa',true);};recog.onend=()=>{recogOn=false;if(phase==='listening'&&!curTx.trim())setTimeout(()=>{if(phase==='listening')safeStart();},600);};recog.onerror=e=>{recogOn=false;if(e.error==='not-allowed'){setStatus('Mic denied \u2014 allow access and reload.');return;}if(phase==='listening')setTimeout(()=>{if(phase==='listening')safeStart();},1000);};return true;}
-function safeStart(){if(recogOn)return;try{recog.start();}catch(_){}}
-function stopSTT(){clearTimeout(silT);clearTimeout(longT);try{recog.stop();}catch(_){}recogOn=false;setInterim('');}
-function listenForParticipant(){curTx='';setInterim('');phase='listening';setPanel('pa',false);setWave(null);setStatus("Participant's turn\u2026");longT=setTimeout(()=>{if(phase==='listening')setStatus('Take your time\u2026');},LONG_S);safeStart();}
-async function processTurn(text){if(phase==='ended')return;phase='processing';setPanel('ai',false);setPanel('pa',false);setWave('proc');setStatus('Processing\u2026');$('ai-st').textContent='Thinking\u2026';logTx('Participant',text);hist.push({role:'user',content:text});try{const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:180,system:SYS,messages:hist})});const data=await res.json();if(data?.content?.[0]?.text){const reply=data.content[0].text.trim();hist.push({role:'assistant',content:reply});logTx('AI',reply);speak(reply,()=>{if(phase!=='ended')listenForParticipant();});}else{if(phase!=='ended')listenForParticipant();}}catch(err){setStatus('Connection issue \u2014 resuming\u2026');setTimeout(()=>{if(phase!=='ended')listenForParticipant();},2000);}}
-function logTx(who,text){if(!sessStart)return;const e=Math.floor((Date.now()-sessStart)/1000);txLog.push({t:Math.floor(e/60)+':'+String(e%60).padStart(2,'0'),who,text});}
-function dlTranscript(){if(!txLog.length)return;const d=new Date();let o='DISCOURSE ASSESSMENT — SECTION I: FIRST ENCOUNTER\n';o+='Date: '+d.toLocaleDateString()+'   Time: '+d.toLocaleTimeString()+'\n';o+='─'.repeat(52)+'\n\n';for(const e of txLog)o+='['+e.t+']  '+e.who+':\n'+e.text+'\n\n';const b=new Blob([o],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='transcript_'+d.toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
-function downloadTranscript(){dlTranscript();}
-async function startRec(){try{recStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});const mt=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';mediaRec=new MediaRecorder(recStream,{mimeType:mt});recChunks=[];mediaRec.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};mediaRec.onstop=()=>{const b=$('btn-audio');if(b)b.disabled=false;};mediaRec.start(1000);const ri=$('rec-ind');if(ri)ri.style.display='flex';}catch(err){const n=$('rec-note');if(n)n.textContent='Audio recording was unavailable in this session.';}}
-function stopRec(){if(mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();if(recStream)recStream.getTracks().forEach(t=>t.stop());}
-function downloadAudio(){if(!recChunks.length)return;const b=new Blob(recChunks,{type:'audio/webm'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='recording_'+new Date().toISOString().slice(0,10)+'.webm';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
-function startSession(){if(!initSTT()){const el=$('err');el.textContent='Speech recognition not supported. Use Chrome or Edge.';el.style.display='block';return;}$('panel-ai').className='panel';$('panel-pa').className='panel';$('ai-st').textContent='Initializing';$('pa-st').textContent='Waiting';setWave(null);setStatus('Preparing session\u2026');setInterim('');txLog=[];recChunks=[];sessStart=Date.now();startRec();logTx('AI',OPENING);hist=[{role:'assistant',content:OPENING}];qShow('s-sess');startTimer();speak(OPENING,()=>{if(phase!=='ended')listenForParticipant();});}
-function endSession(){phase='ended';stopSTT();stopRec();clearInterval(tid);clearInterval(bugT);window.speechSynthesis.cancel();qShow('s-end');}
-function resetSession(){phase='idle';hist=[];txLog=[];secs=0;curTx='';$('timer').textContent='0:00';$('timer').className='timer';qShow('s-intro');}
-if(typeof speechSynthesis!=='undefined'){speechSynthesis.addEventListener('voiceschanged',loadVoices);loadVoices();}
+/* ── constants ─────────────────────────────────────────────── */
+const API_KEY = APIKEY_PLACEHOLDER;
+const API_URL = "https://api.anthropic.com/v1/messages";
+const MAX_S = 300, SIL_MS = 2500, LONG_S = 11000;
+const OPENING = "Welcome to the assessment. Hello, I don't think we've met before. So maybe we can start by getting to know each other a little. This isn't an interview, so I don't have a list of questions prepared. We can just chat casually and get to know each other.";
+const SYS = "You are participating in the First Encounter section of a clinical discourse assessment. Engage in natural casual conversation as if meeting this person for the first time.\n\nRULES:\n- NOT an interview: no prepared question list\n- Let the participant lead; follow their topics\n- VERY SHORT responses: 1-2 sentences max\n- Be warm, genuine, natural\n- Never ask more than one question at a time\n- Respond only with spoken words\n- Do not reference the assessment";
+
+/* ── state ─────────────────────────────────────────────────── */
+let phase = 'idle', hist = [], recog = null, recogOn = false;
+let tid = null, secs = 0, silT = null, longT = null, curTx = '';
+let voices = [], bugT = null;
+let txLog = [], sessStart = null, mediaRec = null, recChunks = [], recStream = null;
+
+/* ── dom ───────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+function qShow(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  $(id).classList.add('on');
+}
+
+function showErr(msg) {
+  const el = $('errbx');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+  const btn = $('btn-start');
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-player-play"></i>&nbsp; Start Session'; }
+}
+
+function setPanel(who, active) {
+  const el = $(who === 'ai' ? 'panel-ai' : 'panel-pa');
+  el.className = 'panel' + (active ? ' ' + (who === 'ai' ? 'ai-on' : 'pa-on') : '');
+  const st = $(who === 'ai' ? 'ai-st' : 'pa-st');
+  if (who === 'ai') st.textContent = active ? 'Speaking…' : (phase === 'processing' ? 'Thinking…' : 'Listening');
+  else st.textContent = active ? 'Speaking…' : 'Your turn';
+}
+
+function setWave(m) {
+  const w = $('wave'), sp = $('spin');
+  w.style.display = 'flex'; sp.style.display = 'none';
+  w.className = 'wave' + (m === 'ai' ? ' ai-wave' : m === 'pa' ? ' pa-wave' : '');
+  if (m === 'proc') { w.style.display = 'none'; sp.style.display = 'block'; }
+}
+
+function setStatus(t) { $('status').textContent = t; }
+function setInterim(t) {
+  const el = $('ipill');
+  if (t) { el.textContent = t; el.style.display = 'block'; }
+  else   { el.style.display = 'none'; el.textContent = ''; }
+}
+
+/* ── timer ─────────────────────────────────────────────────── */
+function startTimer() {
+  secs = 0;
+  tid = setInterval(() => {
+    secs++;
+    const el = $('timer');
+    el.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+    el.className = 'timer' + (secs >= MAX_S - 30 ? ' warn' : '');
+    if (secs >= MAX_S) endSession();
+  }, 1000);
+}
+
+/* ── voices / TTS ──────────────────────────────────────────── */
+function loadVoices() { voices = window.speechSynthesis.getVoices(); }
+function pickVoice() {
+  const p = ['Samantha','Karen','Moira','Google US English Female','Microsoft Aria','Aria','Zira'];
+  for (const n of p) { const v = voices.find(v => v.name.includes(n)); if (v) return v; }
+  return voices.find(v => v.lang && v.lang.startsWith('en')) || null;
+}
+
+function speak(text, done) {
+  clearInterval(bugT);
+  window.speechSynthesis.cancel();
+  phase = 'speaking';
+  setPanel('ai', true); setPanel('pa', false); setWave('ai');
+  setStatus('AI partner is speaking…');
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 0.92; utt.pitch = 1.0; utt.volume = 1.0;
+  const v = pickVoice(); if (v) utt.voice = v;
+  utt.onstart = () => { bugT = setInterval(() => { window.speechSynthesis.pause(); window.speechSynthesis.resume(); }, 9000); };
+  utt.onend   = () => { clearInterval(bugT); setPanel('ai', false); setWave(null); if (done) done(); };
+  utt.onerror = () => { clearInterval(bugT); setPanel('ai', false); setWave(null); if (done) done(); };
+  window.speechSynthesis.speak(utt);
+}
+
+/* ── STT ───────────────────────────────────────────────────── */
+function initSTT() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return false;
+  recog = new SR();
+  recog.continuous = true; recog.interimResults = true; recog.lang = 'en-US';
+  recog.onstart = () => {
+    recogOn = true; phase = 'listening';
+    setPanel('pa', false); setWave('pa');
+    setStatus('Listening for participant…');
+    $('pa-st').textContent = 'Listening…';
+  };
+  recog.onresult = evt => {
+    let interim = '';
+    for (let i = evt.resultIndex; i < evt.results.length; i++) {
+      const t = evt.results[i][0].transcript;
+      if (evt.results[i].isFinal) {
+        curTx += t + ' ';
+        clearTimeout(silT); clearTimeout(longT);
+        setPanel('pa', true);
+        silT = setTimeout(() => { if (curTx.trim() && phase === 'listening') { stopSTT(); processTurn(curTx.trim()); } }, SIL_MS);
+        longT = setTimeout(() => { if (phase === 'listening') setStatus('Take your time…'); }, LONG_S);
+      } else { interim = t; }
+    }
+    setInterim(interim || '');
+    if (interim) setPanel('pa', true);
+  };
+  recog.onend = () => {
+    recogOn = false;
+    if (phase === 'listening' && !curTx.trim()) setTimeout(() => { if (phase === 'listening') safeStart(); }, 600);
+  };
+  recog.onerror = e => {
+    recogOn = false;
+    if (e.error === 'not-allowed') { setStatus('Mic denied — allow microphone access and reload.'); return; }
+    if (phase === 'listening') setTimeout(() => { if (phase === 'listening') safeStart(); }, 1000);
+  };
+  return true;
+}
+
+function safeStart() { if (recogOn) return; try { recog.start(); } catch (_) {} }
+function stopSTT() {
+  clearTimeout(silT); clearTimeout(longT);
+  try { recog.stop(); } catch (_) {}
+  recogOn = false; setInterim('');
+}
+
+function listenForParticipant() {
+  curTx = ''; setInterim(''); phase = 'listening';
+  setPanel('pa', false); setWave(null);
+  setStatus("Participant's turn…");
+  longT = setTimeout(() => { if (phase === 'listening') setStatus('Take your time…'); }, LONG_S);
+  safeStart();
+}
+
+/* ── API ───────────────────────────────────────────────────── */
+async function processTurn(text) {
+  if (phase === 'ended') return;
+  phase = 'processing';
+  setPanel('ai', false); setPanel('pa', false); setWave('proc');
+  setStatus('Processing…'); $('ai-st').textContent = 'Thinking…';
+  logTx('Participant', text);
+  hist.push({ role: 'user', content: text });
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 180, system: SYS, messages: hist })
+    });
+    const data = await res.json();
+    if (data?.content?.[0]?.text) {
+      const reply = data.content[0].text.trim();
+      hist.push({ role: 'assistant', content: reply });
+      logTx('AI', reply);
+      speak(reply, () => { if (phase !== 'ended') listenForParticipant(); });
+    } else {
+      if (phase !== 'ended') listenForParticipant();
+    }
+  } catch (err) {
+    setStatus('Connection issue — resuming…');
+    setTimeout(() => { if (phase !== 'ended') listenForParticipant(); }, 2000);
+  }
+}
+
+/* ── transcript ────────────────────────────────────────────── */
+function logTx(who, text) {
+  if (!sessStart) return;
+  const e = Math.floor((Date.now() - sessStart) / 1000);
+  txLog.push({ t: Math.floor(e / 60) + ':' + String(e % 60).padStart(2, '0'), who, text });
+}
+
+function downloadTranscript() {
+  if (!txLog.length) return;
+  const d = new Date();
+  let o = 'CHATBOT STUDY - FIRST ENCOUNTER\n';
+  o += 'Date: ' + d.toLocaleDateString() + '   Time: ' + d.toLocaleTimeString() + '\n';
+  o += '-'.repeat(50) + '\n\n';
+  for (const e of txLog) o += '[' + e.t + ']  ' + e.who + ':\n' + e.text + '\n\n';
+  const b = new Blob([o], { type: 'text/plain' });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = 'transcript_' + d.toISOString().slice(0, 10) + '.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+}
+
+/* ── recording ─────────────────────────────────────────────── */
+async function startRec() {
+  try {
+    recStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const mt = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+    mediaRec = new MediaRecorder(recStream, { mimeType: mt });
+    recChunks = [];
+    mediaRec.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+    mediaRec.onstop = () => { const b = $('btn-audio'); if (b) b.disabled = false; };
+    mediaRec.start(1000);
+    const ri = $('rec-ind'); if (ri) ri.style.display = 'flex';
+  } catch (err) {
+    const n = $('rec-note'); if (n) n.textContent = 'Audio recording was unavailable in this session.';
+  }
+}
+
+function stopRec() {
+  if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop();
+  if (recStream) recStream.getTracks().forEach(t => t.stop());
+}
+
+function downloadAudio() {
+  if (!recChunks.length) return;
+  const b = new Blob(recChunks, { type: 'audio/webm' });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = 'recording_' + new Date().toISOString().slice(0, 10) + '.webm';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+}
+
+/* ── session control ───────────────────────────────────────── */
+function startSession() {
+  /* STEP 1 - immediate visual feedback so user sees click registered */
+  const btn = $('btn-start');
+  if (btn) { btn.disabled = true; btn.textContent = 'Starting…'; }
+  const errbx = $('errbx');
+  if (errbx) errbx.style.display = 'none';
+
+  /* STEP 2 - check TTS */
+  if (typeof window.speechSynthesis === 'undefined') {
+    showErr('Speech synthesis not available. Please open this URL in Chrome or Edge (not the VS Code built-in browser).');
+    return;
+  }
+
+  /* STEP 3 - check STT */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    showErr('Speech recognition not available. Please open this URL in Chrome or Edge (not the VS Code built-in browser).');
+    return;
+  }
+
+  /* STEP 4 - init */
+  if (!initSTT()) {
+    showErr('Failed to initialize speech recognition. Please try refreshing.');
+    return;
+  }
+
+  /* STEP 5 - run session */
+  sessStart = Date.now();
+  txLog = []; recChunks = [];
+  logTx('AI', OPENING);
+  hist = [{ role: 'assistant', content: OPENING }];
+  $('panel-ai').className = 'panel'; $('panel-pa').className = 'panel';
+  $('ai-st').textContent = 'Initializing'; $('pa-st').textContent = 'Waiting';
+  setWave(null); setStatus('Starting session…'); setInterim('');
+  startRec();
+  qShow('s-sess');
+  startTimer();
+  speak(OPENING, () => { if (phase !== 'ended') listenForParticipant(); });
+}
+
+function endSession() {
+  phase = 'ended';
+  stopSTT(); stopRec(); clearInterval(tid); clearInterval(bugT);
+  window.speechSynthesis.cancel();
+  qShow('s-end');
+}
+
+function resetSession() {
+  phase = 'idle'; hist = []; txLog = []; secs = 0; curTx = '';
+  $('timer').textContent = '0:00'; $('timer').className = 'timer';
+  qShow('s-intro');
+}
+
+/* ── init ──────────────────────────────────────────────────── */
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.addEventListener('voiceschanged', loadVoices);
+  loadVoices();
+}
 </script>
 </body>
 </html>"""
@@ -589,7 +865,7 @@ IMAGE_PATHS = {
 }
 
 # ── Main routing ──────────────────────────────────────────────────────────────
-st.title("Discourse Assessment Protocol")
+st.title("Chatbot Study")
 
 if task == "I — First Encounter":
     if not api_key:
