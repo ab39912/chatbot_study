@@ -592,7 +592,6 @@ IMAGE_PATHS = {
 st.title("Discourse Assessment Protocol")
 
 if task == "I — First Encounter":
-    st.write("**Section I: First Encounter** · ~5 minutes · AI-generated responses")
     if not api_key:
         st.warning("Enter your Anthropic API key in the sidebar to begin Section I.")
         st.stop()
