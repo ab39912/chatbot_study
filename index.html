@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbot Study</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#0b1220; --panel:#0f1729; --card:#131c30; --line:#1f2a40;
+  --text:#e2e8f0; --muted:#94a3b8; --dim:#64748b;
+  --blue:#0ea5e9; --blue-bg:rgba(14,165,233,.12); --blue-line:rgba(14,165,233,.4);
+  --amber:#f59e0b; --amber-bg:rgba(245,158,11,.12); --amber-line:rgba(245,158,11,.4);
+  --green:#22c55e; --green-bg:rgba(34,197,94,.12); --green-line:rgba(34,197,94,.4);
+  --red:#ef4444;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;display:flex;}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+#sidebar{width:280px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);
+  padding:24px 20px;display:flex;flex-direction:column;gap:18px;height:100vh;overflow-y:auto;}
+#sidebar h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;
+  cursor:pointer;font-size:13px;color:var(--muted);border:1px solid transparent;
+  transition:background .15s,color .15s,border-color .15s;user-select:none;}
+.nav-item:hover{background:var(--card);color:var(--text);}
+.nav-item.active{background:var(--blue-bg);color:#7dd3fc;border-color:var(--blue-line);font-weight:600;}
+.nav-item .ti{font-size:17px;}
+.nav-sep{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--dim);padding:4px 14px;margin-top:4px;}
+.shuffle-row{display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;font-size:11px;color:var(--dim);}
+.shuffle-btn{background:var(--card);border:1px solid var(--line);color:var(--muted);
+  width:30px;height:30px;border-radius:8px;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;font-size:15px;transition:background .15s;}
+.shuffle-btn:hover{background:var(--blue-bg);color:#7dd3fc;}
+.side-foot{margin-top:auto;font-size:11px;color:var(--dim);line-height:1.6;
+  padding-top:16px;border-top:1px solid var(--line);}
+
+/* ── MAIN ────────────────────────────────────────────── */
+#main{flex:1;height:100vh;overflow-y:auto;padding:36px 44px;}
+#main-inner{max-width:620px;margin:0 auto;}
+.page-title{font-size:26px;font-weight:700;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+
+/* ── IMAGES ──────────────────────────────────────────── */
+.img-single{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+.img-single img{width:100%;display:block;}
+.img-cap{background:var(--card);padding:7px 14px;font-size:11px;color:var(--muted);}
+.img-grid{display:grid;gap:10px;margin-bottom:20px;}
+.img-grid.cols-2{grid-template-columns:repeat(2,1fr);}
+.img-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.img-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.img-grid figure{text-align:center;}
+.img-grid img{width:100%;border-radius:8px;display:block;}
+.img-grid figcaption{font-size:10px;color:var(--dim);margin-top:4px;}
+.img-ph{background:var(--card);border:2px dashed var(--line);border-radius:8px;
+  aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;color:var(--dim);font-size:11px;gap:6px;padding:8px;text-align:center;}
+.img-ph .ti{font-size:26px;}
+
+/* ── EXAMINER SCRIPT ─────────────────────────────────── */
+.script-box{border:1px solid var(--line);border-radius:10px;margin-bottom:20px;overflow:hidden;}
+.script-head{padding:11px 16px;background:var(--card);cursor:pointer;display:flex;
+  align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted);user-select:none;}
+.script-body{padding:14px 16px;display:none;font-size:12px;color:var(--muted);line-height:1.7;}
+.script-body.open{display:block;}
+.script-body b{color:var(--text);}
+.script-body .q{margin-bottom:10px;}
+.script-body blockquote{border-left:2px solid var(--blue-line);padding-left:12px;
+  margin:3px 0;color:var(--text);font-style:italic;}
+
+/* ── VOICE CARD ──────────────────────────────────────── */
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.vhead{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;
+  background:var(--panel);border-bottom:1px solid var(--line);}
+.vlbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+.vhead-right{display:flex;align-items:center;gap:12px;}
+.rec-ind{display:none;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--red);}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:var(--red);
+  animation:blink 1.5s ease-in-out infinite;display:inline-block;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+.timer{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;
+  font-family:'SF Mono',Menlo,monospace;}
+.timer.warn{color:var(--amber);}
+.vbody{padding:18px;}
+.status-row{display:flex;align-items:flex-start;gap:12px;min-height:60px;margin-bottom:14px;}
+.s-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:17px;flex-shrink:0;background:var(--panel);
+  color:var(--dim);transition:background .25s,color .25s;}
+.s-icon.ai{background:var(--blue-bg);color:var(--blue);}
+.s-icon.pa{background:var(--amber-bg);color:var(--amber);}
+.s-icon.ok{background:var(--green-bg);color:var(--green);}
+.s-icon.err{background:rgba(239,68,68,.12);color:var(--red);}
+.s-text{flex:1;padding-top:2px;}
+.s-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);margin-bottom:3px;}
+.s-prompt{font-size:13px;color:var(--text);line-height:1.55;}
+.meta-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;min-height:22px;}
+.utt{font-size:12px;color:var(--dim);}
+.interim{font-size:11px;color:var(--muted);font-style:italic;max-width:60%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;}
+.wave{display:flex;align-items:center;gap:3px;height:22px;}
+.wbar{width:3px;border-radius:2px;background:var(--line);height:4px;}
+.wbar:nth-child(1){animation-delay:.00s;}.wbar:nth-child(2){animation-delay:.1s;}
+.wbar:nth-child(3){animation-delay:.2s;}.wbar:nth-child(4){animation-delay:.1s;}.wbar:nth-child(5){animation-delay:.0s;}
+.wave.ai .wbar{background:var(--blue);animation:wv .85s ease-in-out infinite;}
+.wave.pa .wbar{background:var(--amber);animation:wv .6s ease-in-out infinite;}
+@keyframes wv{0%,100%{height:4px;}50%{height:18px;}}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+button.act{padding:9px 16px;border-radius:50px;font-size:12px;font-weight:600;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  cursor:pointer;font-family:inherit;transition:background .15s;
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+button.act:hover:not(:disabled){background:var(--card);color:var(--text);}
+button.act:disabled{opacity:.4;cursor:not-allowed;}
+button.b-start{background:var(--blue-bg);color:#7dd3fc;border-color:var(--blue-line);}
+button.b-start:hover:not(:disabled){background:rgba(14,165,233,.2);}
+button.b-end{background:var(--green-bg);color:#86efac;border-color:var(--green-line);}
+button.b-end:hover:not(:disabled){background:rgba(34,197,94,.2);}
+
+/* ── DOWNLOADS ───────────────────────────────────────── */
+.dl-section{margin-top:18px;padding:16px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;display:none;}
+.dl-section.show{display:block;}
+.dl-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;}
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;}
+.dl-note{font-size:11px;color:var(--dim);margin-top:10px;}
+
+.warn-banner{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:10px;padding:12px 16px;font-size:12px;color:#fca5a5;margin-bottom:20px;
+  display:none;line-height:1.6;}
+
+.foot-note{margin-top:24px;font-size:11px;color:var(--dim);text-align:center;}
+
+@media(max-width:760px){
+  body{flex-direction:column;}
+  #sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--line);}
+  #main{padding:24px 18px;height:auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside id="sidebar">
+  <h2>Chatbot Study</h2>
+  <div id="nav"></div>
+  <div class="shuffle-row">
+    <span>Section II randomized</span>
+    <button class="shuffle-btn" onclick="reshuffle()" title="Re-randomize for a new participant">
+      <i class="ti ti-arrows-shuffle"></i>
+    </button>
+  </div>
+  <div class="side-foot">
+    Voice-only protocol.<br>
+    Best in Chrome or Edge.<br>
+    Allow microphone access when prompted.
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main id="main">
+  <div id="main-inner">
+    <div id="warn" class="warn-banner"></div>
+    <h1 class="page-title" id="ptitle">Chatbot Study</h1>
+    <p class="page-sub" id="psub"></p>
+    <div id="img-area"></div>
+    <div id="script-area"></div>
+
+    <!-- voice card -->
+    <div class="vcard">
+      <div class="vhead">
+        <span class="vlbl" id="vlbl">Task</span>
+        <div class="vhead-right">
+          <span class="rec-ind" id="rec-ind"><span class="rec-dot"></span>REC</span>
+          <span class="timer" id="timer">3:00</span>
+        </div>
+      </div>
+      <div class="vbody">
+        <div class="status-row">
+          <div class="s-icon" id="s-icon"><i class="ti ti-player-play"></i></div>
+          <div class="s-text">
+            <div class="s-lbl" id="s-lbl">Ready</div>
+            <div class="s-prompt" id="s-prompt">Press Start Task to begin.</div>
+          </div>
+        </div>
+        <div class="meta-row">
+          <span class="utt" id="utt">Utterances: 0</span>
+          <span class="interim" id="interim"></span>
+          <div class="wave" id="wave"><span class="wbar"></span><span class="wbar"></span><span class="wbar"></span><span class="wbar"></span><span class="wbar"></span></div>
+        </div>
+        <div class="btn-row">
+          <button class="act b-start" id="b-start" onclick="startTask()"><i class="ti ti-player-play"></i> Start Task</button>
+          <button class="act" id="b-p2" onclick="giveP2()" style="display:none" disabled><i class="ti ti-message"></i> 2nd Prompt</button>
+          <button class="act" id="b-p3" onclick="giveP3()" style="display:none" disabled><i class="ti ti-message-2"></i> 3rd Prompt</button>
+          <button class="act" id="b-panel" onclick="nextPanel()" style="display:none" disabled><i class="ti ti-arrow-right"></i> Next Panel</button>
+          <button class="act b-end" id="b-end" onclick="endTask()" disabled><i class="ti ti-check"></i> End Task</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- downloads -->
+    <div class="dl-section" id="dl-section">
+      <div class="dl-title">Session recording &amp; transcript</div>
+      <div class="dl-row">
+        <button class="act b-start" onclick="downloadTranscript()"><i class="ti ti-file-text"></i> Transcript (.txt)</button>
+        <button class="act" id="btn-audio" onclick="downloadAudio()" disabled><i class="ti ti-microphone"></i> Recording (.webm)</button>
+      </div>
+      <div class="dl-note" id="dl-note"></div>
+    </div>
+
+    <p class="foot-note">Speech recognition and synthesis require Chrome or Edge.</p>
+  </div>
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   CHATBOT STUDY — Standalone voice assessment (no server)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Task configs ──────────────────────────────────────────── */
+const TASKS = {
+  "I — First Encounter": {
+    label: "I — First Encounter", section: "I", type: "single",
+    duration: 300, nrTimeout: 10, minUtt: 2,
+    images: [],
+    initial: "Welcome to the assessment. Hello, I don't think we've met before, so let's get to know each other a little. Could you start by introducing yourself? Tell me your name, your age, and anything you'd like me to know about you.",
+    noResponse: "Whenever you're ready, just tell me a little about yourself.",
+    fewUtt: "Is there anything else you'd like to share about yourself?"
+  },
+  "II-A1 — Cookie Theft": {
+    label: "II-A1 — Cookie Theft", section: "II", type: "single",
+    duration: 180, nrTimeout: 10, minUtt: 2,
+    images: [["images/cookie_theft.jpg", "Cookie Theft"]],
+    initial: "Here is a picture. Please tell me everything you see going on in this picture.",
+    noResponse: "Take a look and tell me what's happening in the picture.",
+    fewUtt: "Anything else you can tell me about the picture?"
+  },
+  "II-A2 — Broken Window": {
+    label: "II-A2 — Broken Window", section: "II", type: "multi",
+    duration: 180, nrTimeout: 10,
+    images: [
+      ["images/broken_window_1.jpg", "Panel 1"],
+      ["images/broken_window_2.jpg", "Panel 2"],
+      ["images/broken_window_3.jpg", "Panel 3"],
+      ["images/broken_window_4.jpg", "Panel 4"]
+    ],
+    initial: "Now I'm going to show you these pictures. Take a little time to look at these pictures. They tell a story. Take a look at all of them, and then I'll ask you to tell me the story with a beginning, a middle, and an end. You can look at the pictures as you tell the story.",
+    noResponse: "Take a look at the first picture and tell me what you think is happening.",
+    panels: [
+      "And what happens in the second panel?",
+      "And what happens in the third panel?",
+      "And what happens in the fourth panel?"
+    ],
+    panelNoResponse: "Can you tell me anything about this picture?"
+  },
+  "II-B1 — Cat Rescue": {
+    label: "II-B1 — Cat Rescue", section: "II", type: "single",
+    duration: 180, nrTimeout: 10, minUtt: 2,
+    images: [["images/cat_rescue.jpg", "Cat Rescue"]],
+    initial: "Here is a picture that tells a story. Look at everything that's happening and then tell me a story about what you see. Tell me the story with a beginning, a middle, and an end.",
+    noResponse: "Take a look and tell me any part of the story.",
+    fewUtt: "Anything else you can tell me about the story?"
+  },
+  "II-B2 — Refused Umbrella": {
+    label: "II-B2 — Refused Umbrella", section: "II", type: "multi",
+    duration: 180, nrTimeout: 10,
+    images: [
+      ["images/refused_umbrella_1.jpg", "Panel 1"],
+      ["images/refused_umbrella_2.jpg", "Panel 2"],
+      ["images/refused_umbrella_3.jpg", "Panel 3"],
+      ["images/refused_umbrella_4.jpg", "Panel 4"]
+    ],
+    initial: "Here are some more pictures that tell a story. Take a look at all of them, and then I'll ask you to tell me the story with a beginning, a middle, and an end. Again, you can look at the pictures as you tell the story.",
+    noResponse: "Look at this picture and tell me what you think is happening.",
+    panels: ["And what happens here?", "And what happens here?", "And what happens here?"],
+    panelNoResponse: "Can you tell me anything about this picture?",
+    endFallback: "Let's move on to something a little different."
+  }
+};
+
+const SECTION2_KEYS = ["II-A1 — Cookie Theft","II-A2 — Broken Window","II-B1 — Cat Rescue","II-B2 — Refused Umbrella"];
+
+/* ── App state ─────────────────────────────────────────────── */
+let order = shuffle([...SECTION2_KEYS]);
+let currentTask = "I — First Encounter";
+let CFG = null;
+
+/* voice/session state */
+let phase='idle', uttCount=0, panelIdx=0, taskSecs=0;
+let taskInt=null, nrTimer=null, bugT=null;
+let stt=null, sttOn=false, voices=[];
+let txLog=[], sessStart=null, mediaRec=null, recChunks=[], recStream=null;
+
+const $=id=>document.getElementById(id);
+
+/* ── Utils ─────────────────────────────────────────────────── */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ── Navigation ────────────────────────────────────────────── */
+function renderNav(){
+  const nav=$('nav');
+  let h='<div class="nav-item'+(currentTask==="I — First Encounter"?' active':'')+'" onclick="selectTask(\'I — First Encounter\')">'+
+         '<i class="ti ti-messages"></i> I — First Encounter</div>';
+  h+='<div class="nav-sep">Section II (randomized)</div>';
+  for(const key of order){
+    h+='<div class="nav-item'+(currentTask===key?' active':'')+'" onclick="selectTask(\''+key.replace(/'/g,"\\'")+'\')">'+
+       '<i class="ti ti-photo"></i> '+key+'</div>';
+  }
+  nav.innerHTML=h;
+}
+
+function reshuffle(){
+  order=shuffle([...SECTION2_KEYS]);
+  renderNav();
+}
+
+function selectTask(key){
+  if(phase==='speaking'||phase==='listening'){
+    // ending current session before switching
+    hardStop();
+  }
+  currentTask=key;
+  renderNav();
+  loadTask();
+}
+
+/* ── Load a task into the page ─────────────────────────────── */
+function loadTask(){
+  CFG=TASKS[currentTask];
+  resetSessionState();
+
+  const mins=Math.round(CFG.duration/60);
+  $('ptitle').textContent=CFG.label;
+  $('psub').textContent='~'+mins+' minute'+(mins>1?'s':'')+' · '+
+    (CFG.section==='I'?'Open conversation':'Picture description');
+  $('vlbl').textContent=CFG.label;
+
+  /* images */
+  renderImages();
+
+  /* examiner script */
+  renderScript();
+
+  /* reset voice card */
+  taskSecs=CFG.duration;
+  updateTimer();
+  setStatus('Ready','Press Start Task to begin.','','player-play');
+  $('utt').textContent='Utterances: 0';
+  $('interim').textContent='';
+  setWave('');
+  $('rec-ind').style.display='none';
+  $('dl-section').classList.remove('show');
+  $('dl-note').textContent='';
+
+  /* buttons */
+  $('b-start').disabled=false;
+  $('b-end').disabled=true;
+  $('b-p2').style.display='none'; $('b-p2').disabled=true;
+  $('b-p3').style.display='none'; $('b-p3').disabled=true;
+  $('b-panel').style.display='none'; $('b-panel').disabled=true;
+  $('btn-audio').disabled=true;
+}
+
+function renderImages(){
+  const area=$('img-area');
+  if(!CFG.images || !CFG.images.length){ area.innerHTML=''; return; }
+  if(CFG.images.length===1){
+    const [src,cap]=CFG.images[0];
+    area.innerHTML='<div class="img-single"><img src="'+src+'" alt="'+cap+'" '+
+      'onerror="this.parentElement.innerHTML=phImg(\''+cap+'\',\''+src+'\')">'+
+      '<div class="img-cap">'+cap+'</div></div>';
+  }else{
+    let h='<div class="img-grid cols-'+CFG.images.length+'">';
+    for(const [src,cap] of CFG.images){
+      h+='<figure><img src="'+src+'" alt="'+cap+'" '+
+         'onerror="this.outerHTML=phImg(\''+cap+'\',\''+src+'\')">'+
+         '<figcaption>'+cap+'</figcaption></figure>';
+    }
+    h+='</div>';
+    area.innerHTML=h;
+  }
+}
+
+function phImg(cap,src){
+  const fname=src.split('/').pop();
+  return '<div class="img-ph"><i class="ti ti-photo"></i><div>'+cap+'</div>'+
+         '<div style="color:#475569">Add '+fname+'</div></div>';
+}
+
+function renderScript(){
+  const area=$('script-area');
+  let body='<div class="q"><b>Initial prompt:</b><blockquote>'+CFG.initial+'</blockquote></div>';
+  body+='<div class="q"><b>If no response in '+CFG.nrTimeout+'s:</b><blockquote>'+CFG.noResponse+'</blockquote></div>';
+  if(CFG.fewUtt) body+='<div class="q"><b>If fewer than 2 utterances:</b><blockquote>'+CFG.fewUtt+'</blockquote></div>';
+  if(CFG.panels){
+    CFG.panels.forEach((p,i)=>{ body+='<div class="q"><b>Panel '+(i+2)+' prompt:</b><blockquote>'+p+'</blockquote></div>'; });
+    body+='<div class="q"><b>Panel no-response:</b><blockquote>'+CFG.panelNoResponse+'</blockquote></div>';
+  }
+  if(CFG.endFallback) body+='<div class="q"><b>If no response at all:</b><blockquote>'+CFG.endFallback+'</blockquote></div>';
+
+  area.innerHTML=
+    '<div class="script-box">'+
+      '<div class="script-head" onclick="this.nextElementSibling.classList.toggle(\'open\')">'+
+        '<i class="ti ti-clipboard-text"></i> Examiner script reference</div>'+
+      '<div class="script-body">'+body+'</div>'+
+    '</div>';
+}
+
+/* ── Voice card helpers ────────────────────────────────────── */
+function setIcon(cls,icon){const el=$('s-icon');el.className='s-icon'+(cls?' '+cls:'');el.innerHTML='<i class="ti ti-'+icon+'"></i>';}
+function setStatus(lbl,prompt,iconCls,iconName){setIcon(iconCls,iconName);$('s-lbl').textContent=lbl;$('s-prompt').textContent=prompt;}
+function setWave(m){$('wave').className='wave'+(m?' '+m:'');}
+function updateTimer(){const m=Math.floor(taskSecs/60),s=String(taskSecs%60).padStart(2,'0');const el=$('timer');el.textContent=m+':'+s;el.className='timer'+(taskSecs<=30?' warn':'');}
+function updateUtt(){$('utt').textContent='Utterances: '+uttCount;}
+function setInterim(t){$('interim').textContent=t||'';}
+
+/* ── Voices / TTS ──────────────────────────────────────────── */
+function loadVoices(){voices=window.speechSynthesis.getVoices();}
+function pickVoice(){
+  const p=['Samantha','Karen','Moira','Google US English','Microsoft Aria','Aria','Zira'];
+  for(const n of p){const v=voices.find(v=>v.name.includes(n));if(v)return v;}
+  return voices.find(v=>v.lang&&v.lang.startsWith('en'))||voices[0]||null;
+}
+
+function speak(text,done){
+  clearInterval(bugT);
+  window.speechSynthesis.cancel();
+  phase='speaking'; setWave('ai');
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=0.92; utt.pitch=1.0; utt.volume=1.0;
+  const v=pickVoice(); if(v) utt.voice=v;
+  utt.onstart=()=>{bugT=setInterval(()=>{window.speechSynthesis.pause();window.speechSynthesis.resume();},9000);};
+  utt.onend=()=>{clearInterval(bugT);setWave('');if(done)done();};
+  utt.onerror=()=>{clearInterval(bugT);setWave('');if(done)done();};
+  window.speechSynthesis.speak(utt);
+}
+
+/* ── STT ───────────────────────────────────────────────────── */
+function initSTT(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return false;
+  stt=new SR(); stt.continuous=true; stt.interimResults=true; stt.lang='en-US';
+  stt.onresult=evt=>{
+    let interim='';
+    for(let i=evt.resultIndex;i<evt.results.length;i++){
+      const t=evt.results[i][0].transcript;
+      if(evt.results[i].isFinal){
+        uttCount++; updateUtt();
+        logTx('Participant',t.trim());
+        clearNR(); startNR(); setWave('pa');
+        interim='';
+      }else{ interim=t; setWave('pa'); }
+    }
+    setInterim(interim);
+  };
+  stt.onend=()=>{sttOn=false;if(phase==='listening')setTimeout(()=>{if(phase==='listening')safeStart();},500);};
+  stt.onerror=e=>{
+    sttOn=false;
+    if(e.error==='not-allowed'){setStatus('Microphone blocked','Allow microphone access and reload the page.','err','microphone-off');}
+    else if(phase==='listening')setTimeout(safeStart,1000);
+  };
+  return true;
+}
+function safeStart(){if(sttOn||phase!=='listening')return;try{stt.start();sttOn=true;}catch(_){}}
+function stopSTT(){clearNR();try{stt.stop();}catch(_){}sttOn=false;setInterim('');setWave('');}
+
+/* ── No-response timers ────────────────────────────────────── */
+function clearNR(){clearTimeout(nrTimer);nrTimer=null;}
+function startNR(){
+  if(CFG.type==='multi'&&CFG.panelNoResponse){
+    clearNR();
+    nrTimer=setTimeout(()=>{if(phase==='listening')playPrompt(CFG.panelNoResponse,'Panel prompt');},CFG.nrTimeout*1000);
+  }
+}
+
+function startListening(nrText,nrLabel){
+  phase='listening'; setWave('');
+  safeStart();
+  if(nrText){
+    clearNR();
+    nrTimer=setTimeout(()=>{
+      if(phase==='listening'&&uttCount===0) playPrompt(nrText,nrLabel||'No-response prompt');
+    },CFG.nrTimeout*1000);
+  }
+}
+
+function playPrompt(text,label){
+  stopSTT();
+  setStatus(label,text,'ai','volume');
+  logTx('AI',text);
+  speak(text,()=>{
+    setStatus('Listening','Waiting for participant response…','pa','microphone');
+    startListening(null);
+  });
+}
+
+/* ── Examiner buttons ──────────────────────────────────────── */
+function giveP2(){if(phase==='done')return;if(!CFG.noResponse)return;$('b-p2').disabled=true;playPrompt(CFG.noResponse,'2nd prompt');}
+function giveP3(){if(phase==='done')return;if(!CFG.fewUtt)return;$('b-p3').disabled=true;playPrompt(CFG.fewUtt,'3rd prompt');}
+function nextPanel(){
+  if(phase==='done'||CFG.type!=='multi')return;
+  const panels=CFG.panels||[];
+  if(panelIdx>=panels.length){$('b-panel').disabled=true;return;}
+  const prompt=panels[panelIdx]; panelIdx++;
+  if(panelIdx>=panels.length)$('b-panel').disabled=true;
+  playPrompt(prompt,'Panel '+(panelIdx+1)+' prompt');
+}
+
+/* ── Transcript ────────────────────────────────────────────── */
+function logTx(who,text){
+  if(!sessStart||!text)return;
+  const e=Math.floor((Date.now()-sessStart)/1000);
+  txLog.push({t:Math.floor(e/60)+':'+String(e%60).padStart(2,'0'),who,text});
+}
+function downloadTranscript(){
+  if(!txLog.length){alert('No transcript yet for this task.');return;}
+  const d=new Date();
+  let o='CHATBOT STUDY — '+CFG.label+'\n';
+  o+='Date: '+d.toLocaleDateString()+'   Time: '+d.toLocaleTimeString()+'\n';
+  o+='='.repeat(52)+'\n\n';
+  for(const e of txLog)o+='['+e.t+']  '+e.who+':\n'+e.text+'\n\n';
+  dl(new Blob([o],{type:'text/plain'}),'transcript_'+taskSlug()+'_'+d.toISOString().slice(0,10)+'.txt');
+}
+
+/* ── Recording ─────────────────────────────────────────────── */
+async function startRec(){
+  try{
+    recStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    const mt=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
+    mediaRec=new MediaRecorder(recStream,{mimeType:mt});
+    recChunks=[];
+    mediaRec.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
+    mediaRec.onstop=()=>{$('btn-audio').disabled=false;};
+    mediaRec.start(1000);
+    $('rec-ind').style.display='flex';
+  }catch(err){$('dl-note').textContent='Audio recording was unavailable (mic permission denied).';}
+}
+function stopRec(){
+  if(mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();
+  if(recStream)recStream.getTracks().forEach(t=>t.stop());
+}
+function downloadAudio(){
+  if(!recChunks.length){alert('No recording available.');return;}
+  dl(new Blob(recChunks,{type:'audio/webm'}),'recording_'+taskSlug()+'_'+new Date().toISOString().slice(0,10)+'.webm');
+}
+
+function dl(blob,name){
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=u;a.download=name;document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(u);
+}
+function taskSlug(){return CFG.label.replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');}
+
+/* ── Task lifecycle ────────────────────────────────────────── */
+function startTask(){
+  if(!checkSupport())return;
+  if(!stt&&!initSTT()){setStatus('Unsupported','Speech recognition unavailable. Use Chrome or Edge.','err','alert-circle');return;}
+
+  $('b-start').disabled=true;
+  $('b-end').disabled=false;
+  if(CFG.type==='single'){
+    $('b-p2').style.display='inline-flex'; $('b-p2').disabled=false;
+    $('b-p3').style.display='inline-flex'; $('b-p3').disabled=false;
+  }else{
+    $('b-panel').style.display='inline-flex'; $('b-panel').disabled=false;
+  }
+
+  /* session start */
+  sessStart=Date.now(); txLog=[]; recChunks=[]; uttCount=0; panelIdx=0;
+  updateUtt();
+  startRec();
+
+  /* timer */
+  taskInt=setInterval(()=>{
+    taskSecs--; updateTimer();
+    if(taskSecs<=0){
+      clearInterval(taskInt);
+      if(CFG.type==='single'&&uttCount<(CFG.minUtt||2)&&CFG.fewUtt){taskSecs=0;updateTimer();giveP3();}
+      else{endTask();}
+    }
+  },1000);
+
+  /* initial prompt */
+  setStatus('Initial prompt',CFG.initial,'ai','volume');
+  logTx('AI',CFG.initial);
+  speak(CFG.initial,()=>{
+    setStatus('Listening','Waiting for participant response…','pa','microphone');
+    startListening(CFG.noResponse,'2nd prompt');
+  });
+}
+
+function endTask(){
+  phase='done'; stopSTT(); stopRec();
+  clearInterval(taskInt); clearInterval(bugT);
+  window.speechSynthesis.cancel(); setWave('');
+  setStatus('Task complete','Download below, or pick the next task from the sidebar.','ok','check');
+  $('b-start').disabled=true; $('b-end').disabled=true;
+  $('b-p2').disabled=true; $('b-p3').disabled=true; $('b-panel').disabled=true;
+  $('timer').className='timer';
+  $('dl-section').classList.add('show');
+}
+
+/* stop everything when switching tasks mid-session */
+function hardStop(){
+  phase='idle'; stopSTT(); stopRec();
+  clearInterval(taskInt); clearInterval(bugT);
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  setWave('');
+}
+
+function resetSessionState(){
+  phase='idle'; uttCount=0; panelIdx=0;
+  sessStart=null; txLog=[]; recChunks=[]; mediaRec=null; recStream=null;
+  clearInterval(taskInt); clearInterval(bugT); clearNR();
+}
+
+/* ── Browser support check ─────────────────────────────────── */
+function checkSupport(){
+  const hasTTS=typeof window.speechSynthesis!=='undefined';
+  const hasSTT=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  if(hasTTS&&hasSTT)return true;
+  const w=$('warn');
+  w.style.display='block';
+  w.textContent=(hasTTS?'':'Speech synthesis is unavailable. ')+
+                (hasSTT?'':'Speech recognition is unavailable. ')+
+                'Please open this site in Google Chrome or Microsoft Edge.';
+  return hasTTS; /* allow TTS-only to proceed; STT just won't capture */
+}
+
+/* ── Init ──────────────────────────────────────────────────── */
+function boot(){
+  renderNav();
+  loadTask();
+  if(typeof speechSynthesis!=='undefined'){
+    speechSynthesis.addEventListener('voiceschanged',loadVoices);
+    loadVoices();
+  }
+  /* soft support hint on load */
+  const hasSTT=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  if(!hasSTT){
+    const w=$('warn');w.style.display='block';
+    w.textContent='This browser does not support speech recognition. For full functionality, open in Chrome or Edge.';
+  }
+}
+boot();
+</script>
+</body>
+</html>
